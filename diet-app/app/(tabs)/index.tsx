@@ -1,17 +1,57 @@
 import { ScrollView, View, Text, StyleSheet, TextProps } from "react-native";
-import { router } from "expo-router";
+import { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
+import { FoodItem } from "./log-item";
 
 export const BoldText = (props: TextProps) => (
   <Text {...props} style={[{ fontWeight: "bold", color: "#ffffffff" }, props.style]} />
 );
-var calories = 2500; 
-var daily_calories = 3000;
+var calories_consumed = 0; 
+var daily_calorie_goal = 3000;
 
-var protein = 142;
-var daily_protein = 187;
+var protein_consumed = 0;
+var daily_protein_goal = 200;
+
+type Food = {
+  name: string;
+  calories: number;
+  protein: number;
+}
+
+var foodLoggedToday: Food[] = [];
+
+export function calculateProteinDensity(calories: number, protein: number): number{
+  if (calories == 0){
+    return 0;
+  }
+
+  return Math.round(protein/calories*100);
+}
+
+type Params = {
+  name?: string;
+  calories?: string;
+  protein?: string;
+};
 
 export default function Index() {
+    const { name, calories, protein } = useLocalSearchParams<Params>();
+    const nameReturned = name ? String(name) : "";
+    const caloriesReturned = calories ? Number(calories) : 0;
+    const proteinReturned = protein ? Number(protein) : 0;
+
+    if (nameReturned != ""){
+      foodLoggedToday.push({
+        name: nameReturned, 
+        calories: caloriesReturned, 
+        protein: proteinReturned
+      });
+    }
+    
+    calories_consumed += caloriesReturned;
+    protein_consumed += proteinReturned;
+
   return (
     <View style={styles.container}>
         <View style={styles.viewTitleBar}>
@@ -25,7 +65,7 @@ export default function Index() {
                 <AnimatedCircularProgress
                 size={160}
                 width={12}
-                fill={calories/daily_calories*100}
+                fill={calories_consumed/daily_calorie_goal*100}
                 tintColor="#4CAF50"
                 backgroundColor="#e8e8e8"
                 rotation={0}
@@ -33,7 +73,7 @@ export default function Index() {
                 >
                   {(fill: number) => (
                     <View style={{ alignItems: "center" }}>
-                      <BoldText style={{fontSize: 30}}>{daily_calories-calories}</BoldText>
+                      <BoldText style={{fontSize: 30}}>{daily_calorie_goal-calories_consumed}</BoldText>
                       <BoldText style={{fontSize: 10}}>Remaining Calories</BoldText>
                     </View>
                   )}
@@ -44,7 +84,7 @@ export default function Index() {
                 <AnimatedCircularProgress
                   size={160}
                   width={12}
-                  fill={protein/daily_protein*100}
+                  fill={protein_consumed/daily_protein_goal*100}
                   tintColor="#177cffff"
                   backgroundColor="#e8e8e8"
                   rotation={0}
@@ -52,7 +92,7 @@ export default function Index() {
                 >
                   {(fill: number) => (
                     <View style={{ alignItems: "center" }}>
-                      <BoldText style={{fontSize: 30}}>{daily_protein-protein}</BoldText>
+                      <BoldText style={{fontSize: 30}}>{daily_protein_goal-protein_consumed}</BoldText>
                       <BoldText style={{fontSize: 10}}>Protein Remaining</BoldText>
                     </View>
                   )}
@@ -75,7 +115,7 @@ export default function Index() {
                 </View>
 
                 <View style={styles.valueWrapper}>
-                  <BoldText style={{ fontSize: 26 }}>5</BoldText>
+                  <BoldText style={{ fontSize: 26 }}>{calories_consumed}</BoldText>
                 </View>
                </View>
             </View>
@@ -88,7 +128,7 @@ export default function Index() {
                 </View>
 
                 <View style={styles.valueWrapper}>
-                  <BoldText style={{ fontSize: 26 }}>5</BoldText>
+                  <BoldText style={{ fontSize: 26 }}>{protein_consumed}</BoldText>
                 </View>
                </View>
               </View>
@@ -100,11 +140,13 @@ export default function Index() {
                 </View>
 
                 <View style={styles.valueWrapper}>
-                  <BoldText style={{ fontSize: 26 }}>5</BoldText>
+                  <BoldText style={{ fontSize: 26 }}>
+                    {calculateProteinDensity(daily_calorie_goal-calories_consumed, daily_protein_goal-protein_consumed)}
+                    </BoldText>
                 </View>
                </View>
               </View>
-
+          
           </View>
 
           <View style={styles.titleBar}>
@@ -112,14 +154,17 @@ export default function Index() {
               <Text style={{color: "white", fontWeight: "bold", fontSize: 20}} onPress={() => router.push("/(tabs)/log-item")}>+</Text>
             </View>
           
-            <View style={styles.foodItem}>
-              <Text style={styles.foodTitle}>Banana</Text>
-              <View style={styles.foodData}>
-                <Text style={styles.foodDataValue}>100 Kcal</Text>
-                <Text style={styles.foodDataValue}>10g Protein</Text>
-                <Text style={styles.foodDataValue}>10 Protein Density</Text>
-              </View>
-            </View>
+            <>
+              {
+                foodLoggedToday.map((food) => (
+                  <FoodItem
+                    name={food.name}
+                    calories={food.calories}
+                    protein={food.protein}
+                  />
+                ))
+              }
+            </>
 
         </ScrollView>
     </View>

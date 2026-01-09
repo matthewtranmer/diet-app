@@ -1,22 +1,33 @@
 import { ScrollView, View, Text, StyleSheet, Pressable } from "react-native";
 import { router } from "expo-router";
+import { calculateProteinDensity } from "../index"
 
 type foodItemProps = {
   name: string;
   calories: number,
   protein: number,
-  protein_density: number,
-  onPress?: () => void,
 };
 
-export function FoodItem({ name, calories, protein, protein_density, onPress }: foodItemProps) {
+function returnValues(name: string, calories: number, protein: number) {
+  router.replace({
+    pathname: "/(tabs)",
+    params: {
+      id: String(Date.now()),       
+      name: String(name),
+      calories: String(calories),    
+      protein: String(protein),        
+    },
+  });
+}
+
+export function FoodItem({ name, calories, protein }: foodItemProps) {
   return (
-   <Pressable style={styles.foodItem} onPress={onPress}>
+   <Pressable style={styles.foodItem} onPress={() => returnValues(name, calories, protein)}>
       <Text style={styles.foodTitle}>{name}</Text>
       <View style={styles.foodData}>
         <Text style={styles.foodDataValue}>{calories} Kcal</Text>
         <Text style={styles.foodDataValue}>{protein}g Protein</Text>
-        <Text style={styles.foodDataValue}>{protein_density} Protein Density</Text>
+        <Text style={styles.foodDataValue}>{calculateProteinDensity(calories, protein)} Protein Density</Text>
       </View>
     </Pressable>
   );
@@ -42,7 +53,6 @@ export default function LogFood() {
             name="Chicken Breast"
             calories={165}
             protein={31}
-            protein_density={19}
           />
 
 
@@ -52,10 +62,9 @@ export default function LogFood() {
           </View>
         
           <FoodItem
-            name="Chicken Breast"
-            calories={165}
+            name="Turkey Breast"
+            calories={200}
             protein={31}
-            protein_density={19}
           />
         </ScrollView>
     </View>
