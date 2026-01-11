@@ -63,7 +63,7 @@ function ScreenA({name, setName, calories, setCalories, protein, setProtein}: sc
               onChangeText={setName}
               placeholder="Required" 
               placeholderTextColor="#464646ff" 
-              style={{textAlign: "right", color: "#2179cbff"}} 
+              style={{textAlign: "right", height: 50, color: "#2179cbff", flex: 1}} 
             />
         </View>
 
@@ -74,7 +74,7 @@ function ScreenA({name, setName, calories, setCalories, protein, setProtein}: sc
               onChangeText={setCalories}
               placeholder="Required" 
               placeholderTextColor="#464646ff" 
-              style={{textAlign: "right", color: "#2179cbff"}} 
+              style={{textAlign: "right", height: 50, color: "#2179cbff", flex: 1}} 
             />
         </View>
 
@@ -85,7 +85,7 @@ function ScreenA({name, setName, calories, setCalories, protein, setProtein}: sc
               onChangeText={setProtein}
               placeholder="Required" 
               placeholderTextColor="#464646ff" 
-              style={{textAlign: "right", color: "#2179cbff"}} 
+              style={{textAlign: "right", height: 50, color: "#2179cbff", flex: 1}} 
             />
         </View>
       </View>
@@ -134,11 +134,11 @@ export default function LogFood() {
     return (
     <View style={styles.container}>
         <View style={styles.viewTitleBar}>
-            <Text style={{ color: "#ffffff", padding: 10}} onPress={() => router.back()}>
+            <Text style={{ color: "#ffffff", padding: 20}} onPress={() => router.back()}>
             {"<"}
             </Text>
-            <Text style={{color: "#ffffffff", flex: 1, textAlign: "center", margin: 10}}>Create Item</Text>
-            <Text style={{ color: "#ffffff", padding: 10}} onPress={() => submit(name, Number(calories), Number(protein))}>✓</Text>
+            <Text style={{color: "#ffffffff", flex: 1,textAlign: "center", margin: 10}}>Create Item</Text>
+            <Text style={{ color: "#ffffff", padding: 20}} onPress={() => submit(name, Number(calories), Number(protein))}>✓</Text>
         </View>
 
         <ScrollView>

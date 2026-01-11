@@ -1,12 +1,38 @@
 import { ScrollView, View, Text, StyleSheet, Pressable } from "react-native";
 import { router } from "expo-router";
 import { styles } from "../../../src/style";
-import { FoodItem, TitleBarWithPlusBtn } from "../../../src/elements";
+import { FoodItem, TitleBarWithPlusBtn, BoldText } from "../../../src/elements";
 import { useEffect, useState } from "react";
 import { calculateProteinDensity } from "../../../src/helpers"
-import { createFood, listFoods, FoodRow } from "../../../src/db/foods";
+import { createFood, listFoods, FoodRow, deleteAllFoods } from "../../../src/db/foods";
 import { useCallback } from "react";
 import { useFocusEffect } from "expo-router";
+
+function getFoods(foods: FoodRow[]){
+  if (foods.length > 0){
+    return (
+      <>
+        {foods.map((food) => (
+          <FoodItem
+            key={food.uuid}
+            name={food.name}
+            calories={food.calories}
+            protein={food.protein}
+            pressable={true}
+          />
+        ))}
+      </>
+    );
+  }
+  
+  return (
+    <View style={styles.foodItem}>
+      <Text style={{color: "#0099ffff", fontSize: 13, fontWeight: "bold", textAlign: "center"}}>
+        You Have No Foods Saved
+      </Text>
+    </View>
+  );
+}
 
 
 export default function LogFood() {
@@ -30,10 +56,11 @@ export default function LogFood() {
   return (
     <View style={styles.container}>
         <View style={styles.viewTitleBar}>
-          <Text style={{ color: "#ffffff", padding: 10}} onPress={() => router.back()}>
+          <Text style={{ color: "#ffffff", paddingHorizontal: 17, paddingVertical: 10, fontSize: 24, fontWeight: "bold"}} onPress={() => router.back()}>
             {"<"}
           </Text>
-          <Text style={{color: "inherit", flex: 1, textAlign: "center", margin: 10}}>Log An Item</Text>
+          <Text style={{color: "#ffffffff", flex: 1, textAlign: "center", alignContent: "center", margin: 10}}>Log An Item</Text>
+          <View style={{paddingHorizontal: 25}}></View>
         </View>
 
         <ScrollView contentContainerStyle={styles.content}>
@@ -41,21 +68,28 @@ export default function LogFood() {
             text="Your Meals"
           />
 
+          <View style={styles.foodItem}>
+            <Text style={{color: "#0099ffff", fontSize: 13, fontWeight: "bold", textAlign: "center"}}>
+              You Have No Meals Saved
+            </Text>
+          </View>
+
           <TitleBarWithPlusBtn
             text="Your Foods"
             onPress={() => router.push("/(tabs)/log-item/add-food")}
           />
 
-          {foods.map((food) => (
-            <FoodItem
-              name={food.name}
-              calories={food.calories}
-              protein={food.protein}
-              pressable={true}
-              key={food.uuid}
-            />
-          ))}    
+          
+
+          {getFoods(foods)}    
         </ScrollView>
+
+        <Pressable onPress={() => {
+            deleteAllFoods();
+            refresh();
+          }}>
+            <BoldText>DELETE ALL FOODS</BoldText>
+        </Pressable>
     </View>
   );
 }

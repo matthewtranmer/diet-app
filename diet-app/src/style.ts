@@ -26,19 +26,19 @@ export const styles = StyleSheet.create({
   },
   foodItem: {
     borderRadius: 10,
-    backgroundColor: "#65656534",
+    backgroundColor: "#d5d5d519",
     padding: 15,
     marginBottom: 5,
   },
   foodTitle: {
-    color: "#d6d6d6ff",
+    color: "#ffffffff",
   },
   foodDataValue: {
-    color: "#9f9f9fff",
+    color: "#b5b5b5ff",
     paddingRight: 10,
+    marginTop: 2,
   },
   foodData: {
-    flex: 1,
     flexDirection: "row",
   },
   titleBar: {
@@ -108,16 +108,17 @@ export const styles = StyleSheet.create({
   inputTable: {},
   inputBox: {
     backgroundColor: "#ffffff13",
-    padding: 10,
+    paddingHorizontal: 10,
     borderColor: "#6e6e6eff",
     borderTopWidth: 0.3,
     flexDirection: "row",
     alignSelf: "stretch",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
   },
   inputBoxTitle: {
-    color: "#ffffffff"
-  }
+    color: "#ffffffff",
+    paddingVertical: 17
+  },
   // pageTitle: {
   //   textAlign: "center",
   //   alignSelf: "center",

@@ -59,5 +59,11 @@ export function deleteAllFoodHistory(){
   );
 }
 
+export function deleteAllFoods(){
+  db.runSync(
+    `DELETE FROM foods`
+  );
+}
+
 // SELECT * FROM foods INNER JOIN eatingHistory ON 
 // eatingHistory.food_name = foods.name
