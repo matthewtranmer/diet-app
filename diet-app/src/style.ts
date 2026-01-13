@@ -26,16 +26,14 @@ export const styles = StyleSheet.create({
   },
   foodItem: {
     borderRadius: 10,
-    backgroundColor: "#d5d5d519",
     padding: 15,
-    marginBottom: 5,
   },
   foodTitle: {
     color: "#ffffffff",
   },
   foodDataValue: {
     color: "#b5b5b5ff",
-    paddingRight: 10,
+    marginHorizontal: 3,
     marginTop: 2,
   },
   foodData: {

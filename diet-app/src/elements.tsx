@@ -3,7 +3,11 @@ import { styles } from "./style";
 import { router } from "expo-router";
 import { calculateProteinDensity } from "./helpers"
 import { AnimatedCircularProgress } from "react-native-circular-progress";
-import { createFood, createFoodEaten, listFoods, FoodRow } from "../src/db/foods";
+import { createFood, createFoodEaten, listFoods, FoodRow, deleteFromFoodHistory, deleteAllFoods, deleteFromFoods } from "../src/db/foods";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { scheduleOnRN } from "react-native-worklets";
+import { SwipeToDeleteRow } from "../src/swipeToDelete"
 
 export const BoldText = (props: TextProps) => (
   <Text {...props} style={[{ fontWeight: "bold", color: "#ffffffff" }, props.style]} />
@@ -28,7 +32,7 @@ type dataLineProps = {
 
 export function DataLine({title, children}: dataLineProps){
   return(
-    <View style={{flexDirection: "row", justifyContent: "space-between", backgroundColor: "#d5d5d519", padding: 10, marginVertical: 2, borderRadius: 10}}>
+    <View style={{flexDirection: "row", justifyContent: "space-between", backgroundColor: "#373746", padding: 10, marginVertical: 2, borderRadius: 10}}>
       <Text style={{ color: "#ffffffff", fontWeight: "500"}}>{title}</Text>
       {/* <Text style={{ color: "#ffffffff", fontWeight: "bold"}}>{data}</Text> */}
       <View style={{flexDirection: "row"}}>{children}</View>
@@ -36,28 +40,91 @@ export function DataLine({title, children}: dataLineProps){
   );
 }
 
-type foodItemProps = {
+type foodSavedItemProps = {
   name: string;
   calories: number,
   protein: number,
-  pressable: boolean
+  uuid: number,
+  weight: number,
+  refresh: () => void,
 };
 
-export function FoodItem({ name, calories, protein, pressable }: foodItemProps) {
+export function FoodSavedItem({ name, calories, protein, uuid, weight, refresh }: foodSavedItemProps){
+  var onDelete = () => {
+    deleteFromFoods(uuid)
+    refresh();
+  }
+
+  var onPress = () => {
+      router.push({
+        pathname: "/(tabs)/log-item/weight-picker",
+        params: {
+          foodName: name
+        },
+      });
+  }
+  
+  return baseFoodItem({ 
+    name: name, 
+    calories: calories, 
+    protein: protein, 
+    uuid: uuid, 
+    weight: weight,
+    onDelete: onDelete, 
+    onPress: onPress,
+  })
+}
+
+
+type foodItemHistoryItemProps = {
+  name: string;
+  calories: number,
+  protein: number,
+  uuid: number,
+  weight: number,
+  refresh: () => void,
+};
+
+export function FoodHistoryItem({ name, calories, protein, uuid, weight, refresh }: foodItemHistoryItemProps){
+  var onDelete = () => {
+    deleteFromFoodHistory(uuid)
+    refresh()
+  }
+  
+  return baseFoodItem({ 
+    name: name, 
+    calories: calories, 
+    protein: protein, 
+    uuid: uuid, 
+    weight: weight,
+    onDelete: onDelete,  
+  });
+}
+
+type baseFoodItemProps = {
+  name: string;
+  calories: number,
+  protein: number,
+  uuid: number,
+  weight: number,
+  onDelete: () => void,
+  onPress?: () => void,
+};
+
+function baseFoodItem({ name, calories, protein, uuid, weight, onDelete, onPress }: baseFoodItemProps) {
   return (
-   <Pressable style={styles.foodItem} onPress={() => {
-    if (pressable){ 
-      createFoodEaten(name)
-      router.back()
-     }
-  }}>
-      <Text style={styles.foodTitle}>{name}</Text>
-      <View style={styles.foodData}>
-        <Text style={styles.foodDataValue}>{calories} Kcal</Text>
-        <Text style={styles.foodDataValue}>{protein}g Protein</Text>
-        <Text style={styles.foodDataValue}>{calculateProteinDensity(calories, protein)} Protein Density</Text>
-      </View>
-    </Pressable>
+    <SwipeToDeleteRow containerStyle={{marginBottom: 3}} id={String(uuid)} onDelete={onDelete}>
+      <Pressable style={styles.foodItem} onPress={onPress}
+      >
+        <Text style={styles.foodTitle}>{name}</Text>
+        <View style={styles.foodData}>
+          <Text style={[styles.foodDataValue, {marginLeft: 0}]}>{calories} Kcal</Text>
+          <Text style={styles.foodDataValue}>{protein}g Protein</Text>
+          <Text style={styles.foodDataValue}>{calculateProteinDensity(calories, protein)} Protein Density</Text>
+          <Text style={styles.foodDataValue}>{weight}g</Text>
+        </View>
+      </Pressable>
+    </SwipeToDeleteRow>
   );
 }
 
@@ -134,3 +201,21 @@ export function TitleBarWithPlusBtn({text, onPress}: titleBarWithPlusBtnProps){
     </View>
   );
 }     
+
+type dataTileProps = {
+  data: string,
+  unit: string,
+  text: string,
+};
+
+export function DataTile({data, unit, text}: dataTileProps){
+  return (
+    <View style={{alignContent: "center", backgroundColor: "#", justifyContent: "center", padding: 10, marginHorizontal: 30}}>
+        <View style={{flexDirection: "row"}}>
+            <Text style={{color: "#ffffffff", fontSize: 22, fontWeight: "bold", marginRight: 3}}>{data}</Text>
+            <Text style={{color: "#ffffffff", fontSize: 16, marginTop: 6 ,fontWeight: "bold"}}>{unit}</Text>
+        </View>
+        <Text style={{color: "#ffffffff", fontSize: 13, textAlign: "center"}}>{text}</Text>
+    </View>
+  );
+}

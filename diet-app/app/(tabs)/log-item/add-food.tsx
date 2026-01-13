@@ -47,10 +47,12 @@ type screenAProps = {
   setCalories: React.Dispatch<React.SetStateAction<string>>
   protein: string,
   setProtein: React.Dispatch<React.SetStateAction<string>>
+  weight: string,
+  setWeight: React.Dispatch<React.SetStateAction<string>>
 }
 
 // Create Food
-function ScreenA({name, setName, calories, setCalories, protein, setProtein}: screenAProps) {
+function ScreenA({name, setName, calories, setCalories, protein, setProtein, weight, setWeight}: screenAProps) {
   return (
     <View style={styles.screen}>
       <Text style={{padding: 10, fontSize: 10, fontWeight: "bold", color: "#a5a5a5ff"}}>Create Food Item</Text>
@@ -68,7 +70,7 @@ function ScreenA({name, setName, calories, setCalories, protein, setProtein}: sc
         </View>
 
         <View style={styles.inputBox}>
-            <Text style={styles.inputBoxTitle}>Calories</Text>
+            <Text style={styles.inputBoxTitle}>Calories (kcal)</Text>
             <TextInput 
               value={calories}
               onChangeText={setCalories}
@@ -79,10 +81,21 @@ function ScreenA({name, setName, calories, setCalories, protein, setProtein}: sc
         </View>
 
         <View style={styles.inputBox}>
-            <Text style={styles.inputBoxTitle}>Protein</Text>
+            <Text style={styles.inputBoxTitle}>Protein (g)</Text>
             <TextInput 
               value={protein}
               onChangeText={setProtein}
+              placeholder="Required" 
+              placeholderTextColor="#464646ff" 
+              style={{textAlign: "right", height: 50, color: "#2179cbff", flex: 1}} 
+            />
+        </View>
+
+        <View style={styles.inputBox}>
+            <Text style={styles.inputBoxTitle}>Weight (g)</Text>
+            <TextInput 
+              value={weight}
+              onChangeText={setWeight}
               placeholder="Required" 
               placeholderTextColor="#464646ff" 
               style={{textAlign: "right", height: 50, color: "#2179cbff", flex: 1}} 
@@ -118,8 +131,8 @@ function ScreenB() {
   );
 }
 
-function submit(name: string, calories: number, protein: number){
-  createFood(name, calories, protein);
+function submit(name: string, calories: number, protein: number, weight: number){
+  createFood(name, calories, protein, weight);
   router.back()
 }
 
@@ -129,7 +142,7 @@ export default function LogFood() {
     const [name, setName] = useState<string>("");
     const [calories, setCalories] = useState<string>("");
     const [protein, setProtein] = useState<string>("");
-
+    const [weight, setWeight] = useState<string>("100");
 
     return (
     <View style={styles.container}>
@@ -138,7 +151,7 @@ export default function LogFood() {
             {"<"}
             </Text>
             <Text style={{color: "#ffffffff", flex: 1,textAlign: "center", margin: 10}}>Create Item</Text>
-            <Text style={{ color: "#ffffff", padding: 20}} onPress={() => submit(name, Number(calories), Number(protein))}>✓</Text>
+            <Text style={{ color: "#ffffff", padding: 20}} onPress={() => submit(name, Number(calories), Number(protein), Number(weight))}>✓</Text>
         </View>
 
         <ScrollView>
@@ -160,6 +173,8 @@ export default function LogFood() {
                     setCalories={setCalories}
                     protein={protein}
                     setProtein={setProtein}
+                    weight={weight}
+                    setWeight={setWeight}
                     /> : 
                     <ScreenB />}
                 </View>

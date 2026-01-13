@@ -1,12 +1,36 @@
 import { ScrollView, View, Text, StyleSheet, Pressable } from "react-native";
 import { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
-import { FoodItem, BoldText, CircularProgressBar, KPIcard, TitleBarWithPlusBtn, DataLine } from "../../src/elements";
+import { FoodHistoryItem, BoldText, CircularProgressBar, KPIcard, TitleBarWithPlusBtn, DataLine } from "../../src/elements";
 import { styles } from "../../src/style";
 import { calculateProteinDensity } from "../../src/helpers"
 import { createFood, listFoods, FoodRow, EatingHistoryRow, listEatingHistory, deleteAllFoodHistory } from "../../src/db/foods";
 import { useCallback } from "react";
 import { useFocusEffect } from "expo-router";
+import { Alert } from "react-native";
+
+function confirmStartNewDay(refresh: () => void) {
+  Alert.alert(
+    "New Day",
+    "Are you sure you want to start a new day?",
+    [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Yes",
+        style: "destructive",
+        onPress: () => {
+          deleteAllFoodHistory();
+          refresh();
+        },
+      },
+    ],
+    { cancelable: true }
+  );
+}
+
 
 var daily_calorie_goal = 3000;
 var daily_protein_goal = 200;
@@ -17,17 +41,23 @@ var daily_protein_goal = 200;
 //   protein: number;
 // }
 
-function getFoodLogged(eatingHistory: EatingHistoryRow[]){
+function calculateIncreaseFromWeight(value: number, original_weight: number, selected_weight: number): number{
+  return (value / original_weight) * selected_weight;
+}
+
+function getFoodLogged(eatingHistory: EatingHistoryRow[], refresh: () => void){
   if (eatingHistory.length > 0){
     return (
       <>
         {eatingHistory.map((food) => (
-          <FoodItem
+          <FoodHistoryItem
             key={food.food_uuid}
             name={food.name}
-            calories={food.calories}
-            protein={food.protein}
-            pressable={false}
+            calories={calculateIncreaseFromWeight(food.calories, food.original_weight, food.selected_weight)}
+            protein={calculateIncreaseFromWeight(food.protein, food.original_weight, food.selected_weight)}
+            uuid={food.food_uuid}
+            refresh={refresh}
+            weight={food.selected_weight}
           />
         ))}
       </>
@@ -36,13 +66,12 @@ function getFoodLogged(eatingHistory: EatingHistoryRow[]){
   
   return (
     <View style={styles.foodItem}>
-      <Text style={{color: "#0099ffff", backgroundColor: "d5d5d519", fontSize: 13, fontWeight: "bold", textAlign: "center"}}>
+      <Text style={{color: "#0099ffff", backgroundColor: "#d5d5d519", fontSize: 13, fontWeight: "bold", textAlign: "center", padding: 10, borderRadius: 10}}>
         No Items Logged Today
       </Text>
     </View>
   );
 }
-
 
 export default function Index() {
   const [eatingHistory, setEatingHistory] = useState<EatingHistoryRow[]>([]);
@@ -55,8 +84,8 @@ export default function Index() {
 
     const totals = rows.reduce(
       (acc, f) => {
-        acc.calories += f.calories ?? 0;
-        acc.protein += f.protein ?? 0;
+        acc.calories += ((f.calories ?? 0) / (f.original_weight ?? 1) * (f.selected_weight ?? 1));
+        acc.protein += ((f.protein ?? 0) / (f.original_weight ?? 1) * (f.selected_weight ?? 1));
         return acc;
       },
       { calories: 0, protein: 0 }
@@ -162,24 +191,21 @@ export default function Index() {
               onPress={() => router.push("/(tabs)/log-item")}
             /> */}
             
-            {getFoodLogged(eatingHistory)}
+            {getFoodLogged(eatingHistory, refresh)}
 
           </View>
           </View>
-         
-         
-              
 
+        <Pressable onPress={() => confirmStartNewDay(refresh)}>
+          <View style={[styles.data, {flexDirection: "row", marginBottom: 30}]}>
+            <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+              <Text style={{ color: "#0099ffff" }}>Start New Day</Text>
+            </View>
+          </View>
+        </Pressable>
+          
+         
         </ScrollView>
-
-        <Pressable onPress={() => {
-            deleteAllFoodHistory();
-            refresh();
-          }}
-          style={{marginBottom: 30}}  
-        >
-            <BoldText>DELETE ALL HISTORY</BoldText>
-          </Pressable>
     </View>
   );
 }

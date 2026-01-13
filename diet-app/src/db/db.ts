@@ -13,14 +13,16 @@ export function initDb() {
 
     CREATE TABLE IF NOT EXISTS foods (
       name TEXT PRIMARY KEY NOT NULL,
-      uuid TEXT NOT NULL,
+      uuid TEXT UNIQUE NOT NULL,
       calories INTEGER NOT NULL,
-      protein INTEGER NOT NULL
+      protein INTEGER NOT NULL,
+      weight INTEGER NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS eatingHistory (
       food_uuid TEXT PRIMARY KEY NOT NULL,  
       food_name TEXT NOT NULL,
+      weight INTEGER NOT NULL,
       created_at TEXT NOT NULL,
       FOREIGN KEY (food_name) REFERENCES foods(name)
     );
